@@ -15,7 +15,8 @@ serde = { version = "1.0.201", features = ["derive"] }
 sqlx = {version = "0.7.4", features = [ "runtime-tokio", "tls-native-tls", "mysql" ]}
 tokio = { version = "1.37.0", features = ["full"] }
 tower = "0.4.13"
+tower-http = { version = "0.5.2", features = ["trace"] }
 tracing = { version = "0.1.40", features = ["attributes"] }
-tracing-subscriber = "0.3.18"
+tracing-subscriber = { version= "0.3.18", features = ["registry", "env-filter"] }
 
 [dev-dependencies]
