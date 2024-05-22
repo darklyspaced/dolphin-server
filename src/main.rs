@@ -1,4 +1,6 @@
-use tracing::info;
+use dotenvy::dotenv;
+use sqlx::mysql::MySqlPoolOptions;
+use tracing::debug;
 use tracing_subscriber::prelude::*;
 
 use dolphin_server::{app::app, error::Result};
@@ -13,10 +15,16 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    dotenv().expect(".env file not found");
+
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
 
-    info!("listening on {}", listener.local_addr()?);
-    axum::serve(listener, app()).await?;
+    let pool = MySqlPoolOptions::new()
+        .connect("mysql://root:root@localhost:8889/dolphin")
+        .await?;
+
+    debug!("listening on {}", listener.local_addr()?);
+    axum::serve(listener, app(pool)).await?;
 
     Ok(())
 }

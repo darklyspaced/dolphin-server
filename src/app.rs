@@ -1,4 +1,5 @@
 use axum::{extract::MatchedPath, http::Request, routing::get, Router};
+use sqlx::MySqlPool;
 
 use crate::{
     health::check_health,
@@ -8,7 +9,7 @@ use crate::{
 };
 use tower_http::trace::TraceLayer;
 
-pub fn app() -> Router {
+pub fn app(pool: MySqlPool) -> Router {
     Router::new()
         .route("/health", get(check_health))
         .route("/", get(landing))
@@ -31,4 +32,5 @@ pub fn app() -> Router {
                 )
             }),
         )
+        .with_state(pool)
 }
