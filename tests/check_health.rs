@@ -1,8 +1,8 @@
 use anyhow::Result;
 use axum::{body::Body, http::Request};
-use tower::ServiceExt;
+use tower::util::ServiceExt;
 
-use dolphin_server::app;
+use dolphin_server::app::app;
 
 #[tokio::test]
 async fn check_health_works() -> Result<()> {

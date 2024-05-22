@@ -3,13 +3,16 @@ name = "dolphin_server"
 authors = ["Rohan Janaki <srohanjd@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = "1.0.83"
+askama = "0.12.1"
 axum = "0.7.5"
 serde = { version = "1.0.201", features = ["derive"] }
+sqlx = {version = "0.7.4", features = [ "runtime-tokio", "tls-native-tls", "mysql" ]}
 tokio = { version = "1.37.0", features = ["full"] }
 tower = "0.4.13"
 tracing = { version = "0.1.40", features = ["attributes"] }

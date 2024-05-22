@@ -1,7 +1,7 @@
 use anyhow::Result;
 use tracing::info;
 
-use dolphin_server::app;
+use dolphin_server::app::app;
 
 #[tokio::main]
 async fn main() -> Result<()> {
