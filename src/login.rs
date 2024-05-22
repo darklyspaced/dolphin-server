@@ -1,7 +1,12 @@
 use askama::Template;
 
-#[derive(Template)]
-#[template(path = "index.html")]
-struct LoginPage {}
+use crate::error::Result;
 
-pub async fn login() {}
+#[derive(Template)]
+#[template(path = "login.html")]
+struct LoginPage;
+
+pub async fn login() -> Result<String> {
+    let page = LoginPage;
+    Ok(page.render()?)
+}

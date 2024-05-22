@@ -1,7 +1,7 @@
-use anyhow::Result;
+use axum::response::IntoResponse;
 use tracing::info;
 
-use dolphin_server::app::app;
+use dolphin_server::{app::app, error::Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
