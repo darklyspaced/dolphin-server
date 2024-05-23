@@ -9,13 +9,14 @@ publish = false
 
 [dependencies]
 anyhow = "1.0.83"
-argon2 = "0.5.3"
+argon2 = { version = "0.5.3", features = ["std"] }
 askama = "0.12.1"
 axum = "0.7.5"
 dotenvy = "0.15.7"
 dotenvy_macro = "0.15.7"
 serde = { version = "1.0.201", features = ["derive"] }
 sqlx = {version = "0.7.4", features = [ "runtime-tokio", "tls-native-tls", "mysql" ]}
+thiserror = "1.0.61"
 tokio = { version = "1.37.0", features = ["full"] }
 tower = "0.4.13"
 tower-http = { version = "0.5.2", features = ["trace"] }

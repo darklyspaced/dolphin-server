@@ -1,15 +1,14 @@
+use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use askama::Template;
 use axum::{
     extract::State,
-    http::StatusCode,
-    response::{Html, IntoResponse},
+    response::{Html, IntoResponse, Redirect},
     Form,
 };
 use serde::Deserialize;
 use sqlx::MySqlPool;
-use tracing::info;
 
-use crate::error::Result;
+use crate::error::{AuthError, Result};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -34,16 +33,24 @@ pub async fn login(
     Form(details): Form<Details>,
     // form must be last as it consumes the request
 ) -> Result<impl IntoResponse> {
-    let users = sqlx::query!("SELECT * FROM users").fetch_all(&pool).await?;
+    let user = sqlx::query!("SELECT * FROM users WHERE username = ?", details.username)
+        .fetch_optional(&pool)
+        .await?;
 
-    for user in users {
-        info!("user found: {}", user.email);
+    if let Some(u) = user {
+        if u.username == details.username {
+            let parsed_hash = PasswordHash::new(&u.username)?;
+            let Ok(_) =
+                Argon2::default().verify_password(details.password.as_bytes(), &parsed_hash)
+            else {
+                return Err(AuthError::PasswordIncorrect(details.username).into());
+            };
+
+            // TODO return oauth thing so that sessions are enabled
+
+            return Ok(Redirect::to("/"));
+        }
     }
 
-    info!(
-        "the user's details are: {} and {}",
-        details.username, details.password
-    );
-
-    Ok(StatusCode::OK)
+    Err(AuthError::UsernameNotFound(details.username).into())
 }

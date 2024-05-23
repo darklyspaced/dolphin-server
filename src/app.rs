@@ -11,8 +11,8 @@ use tower_http::trace::TraceLayer;
 
 pub fn app(pool: MySqlPool) -> Router {
     Router::new()
-        .route("/health", get(check_health))
         .route("/", get(landing))
+        .route("/health", get(check_health))
         .route("/login", get(login_page).post(login))
         .route("/signout", get(logout))
         .layer(
