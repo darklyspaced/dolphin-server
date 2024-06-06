@@ -2,11 +2,13 @@ use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use askama::Template;
 use axum::{
     extract::State,
-    response::{Html, IntoResponse, Redirect},
+    http::header::SET_COOKIE,
+    response::{AppendHeaders, Html, IntoResponse, Redirect},
     Form,
 };
 use serde::Deserialize;
 use sqlx::MySqlPool;
+use uuid::Uuid;
 
 use crate::error::{AuthError, Result};
 
@@ -46,9 +48,10 @@ pub async fn login(
                 return Err(AuthError::PasswordIncorrect(details.username).into());
             };
 
-            // TODO return oauth thing so that sessions are enabled
+            let session_token = Uuid::new_v4();
+            let cookie = AppendHeaders([(SET_COOKIE, format!("session_token={}", session_token))]);
 
-            return Ok(Redirect::to("/"));
+            return Ok((cookie, Redirect::to("/")));
         }
     }
 

@@ -17,6 +17,13 @@ pub enum AuthError {
     PasswordIncorrect(String),
 }
 
+#[derive(Error, Debug)]
+/// Error type used to denote all authentication related errors
+pub enum LocationError {
+    #[error("malformed body: {0}")]
+    MalformedBody(String),
+}
+
 /// Attempts to downcast the error into a type, and acts upon that type. Else, chalks it up to an
 /// internal server error.
 impl IntoResponse for DolphinError {
