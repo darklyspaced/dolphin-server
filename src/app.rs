@@ -1,9 +1,15 @@
-use axum::{extract::MatchedPath, http::Request, routing::get, Router};
+use axum::{
+    extract::MatchedPath,
+    http::Request,
+    routing::{get, post},
+    Router,
+};
 use sqlx::MySqlPool;
 
 use crate::{
     health::check_health,
     landing::landing,
+    location::location,
     login::{login, login_page},
     logout::logout,
 };
