@@ -1,6 +1,6 @@
 use dotenvy::dotenv;
 use sqlx::mysql::MySqlPoolOptions;
-use tracing::debug;
+use tracing::{debug, debug_span};
 use tracing_subscriber::prelude::*;
 
 use dolphin_server::{app::app, error::Result};
@@ -22,6 +22,8 @@ async fn main() -> Result<()> {
     let pool = MySqlPoolOptions::new()
         .connect("mysql://root:root@localhost:8889/dolphin")
         .await?;
+
+    tokio::spawn(browse_dolphin());
 
     debug!("listening on {}", listener.local_addr()?);
     axum::serve(listener, app(pool)).await?;
