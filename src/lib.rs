@@ -1,3 +1,5 @@
+#![feature(min_specialization)]
+
 pub mod app;
 pub mod error;
 pub mod health;

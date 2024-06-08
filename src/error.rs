@@ -1,11 +1,24 @@
-use anyhow::Error;
-use argon2::password_hash;
 use axum::{http::StatusCode, response::IntoResponse};
+use std::fmt::Display;
 use thiserror::Error;
 
-/// Error type used by server
 #[derive(Debug)]
-pub struct DolphinError(Error);
+pub enum DolphinError {
+    Auth(AuthError),
+    Location(LocationError),
+    Generic(anyhow::Error),
+}
+
+impl Display for DolphinError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Auth(err) => write!(f, "{}", err),
+            Self::Location(err) => write!(f, "{}", err),
+            Self::Generic(err) => write!(f, "{}", err),
+        }
+    }
+}
+
 pub type Result<T> = std::result::Result<T, DolphinError>;
 
 #[derive(Error, Debug)]
@@ -18,7 +31,7 @@ pub enum AuthError {
 }
 
 #[derive(Error, Debug)]
-/// Error type used to denote all authentication related errors
+/// Error type used to denote all location related errors
 pub enum LocationError {
     #[error("malformed body: {0}")]
     MalformedBody(String),
@@ -27,29 +40,52 @@ pub enum LocationError {
 /// Attempts to downcast the error into a type, and acts upon that type. Else, chalks it up to an
 /// internal server error.
 impl IntoResponse for DolphinError {
-    fn into_response(self) -> axum::response::Response {
-        match self.0.downcast_ref() {
-            Some(err) => match err {
-                AuthError::UsernameNotFound(_) | AuthError::PasswordIncorrect(_) => {
+    fn into_response(self) -> axum::http::Response<axum::body::Body> {
+        // don't care about any fields regardless of if more are added so `..` is used
+        match self {
+            Self::Auth(err) => match err {
+                AuthError::UsernameNotFound(..) | AuthError::PasswordIncorrect(..) => {
+                    tracing::warn!("{}", err);
                     (StatusCode::FORBIDDEN, "username/password was incorrect").into_response()
                 }
             },
-            _ => (
+            Self::Location(err) => match err {
+                LocationError::MalformedBody(..) => {
+                    tracing::error!("{}", err);
+                    (
+                        StatusCode::BAD_REQUEST,
+                        "recieved malformed location from client",
+                    )
+                        .into_response()
+                }
+            },
+            Self::Generic(..) => (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("something catasrophically failed: {}", self.0),
+                format!("something catastrophically failed: {}", self),
             )
                 .into_response(),
         }
     }
 }
 
-/// Automatically converts everything that implements `Into<anyhow::Error>` (basically every error
-/// type) into Dolphin error to facilitate use of `?`
+/// Enables all errors to be tries using `?` in the general case
 impl<E> From<E> for DolphinError
 where
     E: Into<anyhow::Error>,
 {
-    fn from(err: E) -> Self {
-        Self(err.into())
+    default fn from(value: E) -> Self {
+        Self::Generic(value.into())
+    }
+}
+
+impl From<AuthError> for DolphinError {
+    fn from(value: AuthError) -> Self {
+        Self::Auth(value)
+    }
+}
+
+impl From<LocationError> for DolphinError {
+    fn from(value: LocationError) -> Self {
+        Self::Location(value)
     }
 }

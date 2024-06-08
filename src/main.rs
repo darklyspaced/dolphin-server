@@ -1,10 +1,13 @@
+use std::sync::Arc;
+
+use dashmap::DashMap;
 use dotenvy::dotenv;
 use sqlx::mysql::MySqlPoolOptions;
-use tracing::{debug, debug_span};
+use tracing::debug;
 use tracing_subscriber::prelude::*;
 
-use dolphin_server::{app::app, error::Result};
-const FILTER: &str = "dolphin=debug,tower_http=debug,axum::rejection=trace";
+use dolphin_server::{app::app, error::Result, service::Services};
+const FILTER: &str = "dolphin=trace,tower_http=debug,axum::rejection=trace";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -15,6 +18,9 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let services = Arc::new(DashMap::new());
+    tokio::spawn(async move { Services::browse_services(Arc::clone(&services)).await });
+
     dotenv().expect(".env file not found");
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
@@ -22,8 +28,6 @@ async fn main() -> Result<()> {
     let pool = MySqlPoolOptions::new()
         .connect("mysql://root:root@localhost:8889/dolphin")
         .await?;
-
-    tokio::spawn(browse_dolphin());
 
     debug!("listening on {}", listener.local_addr()?);
     axum::serve(listener, app(pool)).await?;
