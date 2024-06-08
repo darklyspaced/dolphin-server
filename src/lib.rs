@@ -7,4 +7,5 @@ pub mod landing;
 pub mod location;
 pub mod login;
 pub mod logout;
+pub mod ping;
 pub mod service;

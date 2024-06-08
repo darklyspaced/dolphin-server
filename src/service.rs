@@ -10,7 +10,7 @@ use mdns_sd::{ServiceDaemon, ServiceEvent};
 use tracing::{debug, debug_span};
 
 #[derive(Debug, Eq, Hash, PartialEq)]
-pub struct MacAddr(String);
+pub struct MacAddr(pub String);
 
 #[derive(Default, Debug)]
 pub struct Services(HashMap<MacAddr, Service>);
@@ -75,8 +75,8 @@ impl Services {
 
 #[derive(Debug)]
 pub struct Service {
-    addr: IpAddr,
-    port: u16,
+    pub addr: IpAddr,
+    pub port: u16,
 }
 
 impl Service {

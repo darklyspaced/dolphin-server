@@ -10,7 +10,10 @@ use serde::Deserialize;
 use sqlx::MySqlPool;
 use uuid::Uuid;
 
-use crate::error::{AuthError, Result};
+use crate::{
+    app::AppState,
+    error::{AuthError, Result},
+};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -31,10 +34,11 @@ pub struct Details {
 
 /// Handles login request from user
 pub async fn login(
-    State(pool): State<MySqlPool>,
+    State(state): State<AppState>,
     Form(details): Form<Details>,
     // form must be last as it consumes the request
 ) -> Result<impl IntoResponse> {
+    let pool = state.pool;
     let user = sqlx::query!("SELECT * FROM users WHERE username = ?", details.username)
         .fetch_optional(&pool)
         .await?;
