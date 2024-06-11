@@ -1,6 +1,3 @@
-use std::time::Duration;
-
-use anyhow::Result;
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -8,38 +5,33 @@ use axum::{
 };
 use tokio::{io::AsyncReadExt, net::TcpStream};
 
-use crate::{app::AppState, service::MacAddr};
+use crate::{
+    app::AppState,
+    error::Result,
+    service::{MacAddr, Services},
+};
 
 pub async fn ping(
     State(state): State<AppState>,
     Path(mac): Path<String>,
 ) -> Result<impl IntoResponse> {
-    let result = state.services.try_get(&MacAddr(mac));
+    _ping(MacAddr(mac), state.services).await
+}
 
-    // TODO make this a better timeout using interval and tokio::select!
-    for _ in 0..15 {
-        if result.is_present() {
-            let service = result.unwrap();
+async fn _ping(mac: MacAddr, services: Services) -> Result<impl IntoResponse> {
+    let mut result = services.get(mac).await?;
+    match result {
+        Some(service) => {
             let addr = format!("{}/{}", service.addr, service.port);
-
             let mut stream = TcpStream::connect(addr).await?;
             let mut bytes = Vec::new();
 
             stream.read_to_end(&mut bytes).await?;
 
-            let loc = String::from_utf8(bytes)?;
+            let bssid = String::from_utf8(bytes)?;
 
-            return Ok((StatusCode::FOUND, loc));
-        } else if result.is_absent() {
-            return Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop")));
-        } else {
-            std::thread::sleep(Duration::from_millis(95));
+            return Ok((StatusCode::FOUND, bssid));
         }
+        None => Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop"))),
     }
-
-    tracing::error!("failed to obtain lock on services map after 1.5s");
-    Ok((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        String::from("failed to ping laptops"),
-    ))
 }

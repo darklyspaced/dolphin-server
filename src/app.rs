@@ -15,20 +15,20 @@ use crate::{
     location::location,
     login::{login, login_page},
     logout::logout,
-    service::{MacAddr, Service},
+    service::{MacAddr, Service, Services},
 };
 use tower_http::trace::TraceLayer;
 
 #[derive(Clone)]
 pub struct AppState {
     pub pool: MySqlPool,
-    pub services: Arc<DashMap<MacAddr, Service>>,
+    pub services: Services,
 }
 
 pub fn app(pool: MySqlPool) -> Router {
     let state = AppState {
         pool,
-        services: Arc::new(DashMap::new()),
+        services: Services::new(),
     };
 
     Router::new()
