@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use dashmap::DashMap;
 use dotenvy::dotenv;
 use sqlx::mysql::MySqlPoolOptions;
 use tracing::debug;
@@ -18,8 +15,9 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let services = Arc::new(DashMap::new());
-    tokio::spawn(async move { Services::browse_services(Arc::clone(&services)).await });
+    // create a new list and keep track of all the services that were added and removed
+    let mut services = Services::new();
+    tokio::spawn(async move { services.browse_services().await });
 
     dotenv().expect(".env file not found");
 

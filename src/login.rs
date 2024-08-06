@@ -7,7 +7,6 @@ use axum::{
     Form,
 };
 use serde::Deserialize;
-use sqlx::MySqlPool;
 use uuid::Uuid;
 
 use crate::{
@@ -38,7 +37,7 @@ pub async fn login(
     Form(details): Form<Details>,
     // form must be last as it consumes the request
 ) -> Result<impl IntoResponse> {
-    let pool = state.pool;
+    let pool = state.pool.clone();
     let user = sqlx::query!("SELECT * FROM users WHERE username = ?", details.username)
         .fetch_optional(&pool)
         .await?;

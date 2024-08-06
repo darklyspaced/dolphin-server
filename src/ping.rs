@@ -3,7 +3,6 @@ use axum::{
     http::StatusCode,
     response::IntoResponse,
 };
-use tokio::{io::AsyncReadExt, net::TcpStream};
 
 use crate::{
     app::AppState,
@@ -19,18 +18,14 @@ pub async fn ping(
 }
 
 async fn _ping(mac: MacAddr, services: Services) -> Result<impl IntoResponse> {
-    let mut result = services.get(mac).await?;
+    let result = services.get(mac).await?;
     match result {
         Some(service) => {
-            let addr = format!("{}/{}", service.addr, service.port);
-            let mut stream = TcpStream::connect(addr).await?;
-            let mut bytes = Vec::new();
+            let Ok(loc) = service.try_get_loc().await else {
+                return Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop")));
+            };
 
-            stream.read_to_end(&mut bytes).await?;
-
-            let bssid = String::from_utf8(bytes)?;
-
-            return Ok((StatusCode::FOUND, bssid));
+            Ok((StatusCode::FOUND, loc))
         }
         None => Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop"))),
     }

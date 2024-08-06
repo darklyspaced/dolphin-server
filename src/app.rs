@@ -1,12 +1,9 @@
-use std::sync::Arc;
-
 use axum::{
     extract::MatchedPath,
     http::Request,
     routing::{get, post},
     Router,
 };
-use dashmap::DashMap;
 use sqlx::MySqlPool;
 
 use crate::{
@@ -15,7 +12,9 @@ use crate::{
     location::location,
     login::{login, login_page},
     logout::logout,
-    service::{MacAddr, Service, Services},
+    ping::ping,
+    register::register,
+    service::Services,
 };
 use tower_http::trace::TraceLayer;
 
@@ -37,7 +36,8 @@ pub fn app(pool: MySqlPool) -> Router {
         .route("/login", get(login_page).post(login))
         .route("/signout", get(logout))
         .route("/location", post(location))
-        .route("/ping/:mac", get(location))
+        .route("/ping/:mac", get(ping))
+        .route("/register/:mac", get(register))
         .layer(
             TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
                 let matched_path = request

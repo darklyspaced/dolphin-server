@@ -11,7 +11,7 @@ publish = false
 anyhow = "1.0.83"
 argon2 = { version = "0.5.3", features = ["std"] }
 askama = "0.12.1"
-axum = "0.7.5"
+axum = { version = "0.7.5", features = ["macros"] }
 dashmap = "5.5.3"
 dotenvy = "0.15.7"
 dotenvy_macro = "0.15.7"
