@@ -10,7 +10,8 @@ publish = false
 [dependencies]
 anyhow = "1.0.83"
 argon2 = { version = "0.5.3", features = ["std"] }
-askama = "0.12.1"
+askama = { version = "0.12.1", features = ["with-axum"] }
+askama_axum = "0.4.0"
 axum = { version = "0.7.5", features = ["macros"] }
 dashmap = "5.5.3"
 dotenvy = "0.15.7"

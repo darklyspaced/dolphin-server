@@ -1,9 +1,9 @@
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
-use askama::Template;
+use askama_axum::Template;
 use axum::{
     extract::State,
     http::header::SET_COOKIE,
-    response::{AppendHeaders, Html, IntoResponse, Redirect},
+    response::{AppendHeaders, IntoResponse, Redirect},
     Form,
 };
 use serde::Deserialize;
@@ -19,9 +19,8 @@ use crate::{
 struct LoginPage;
 
 /// Displays login page to user
-pub async fn login_page() -> Result<Html<String>> {
-    let page = LoginPage;
-    Ok(Html(page.render()?))
+pub async fn login_page() -> Result<impl IntoResponse> {
+    Ok(LoginPage)
 }
 
 #[derive(Deserialize)]

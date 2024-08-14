@@ -34,7 +34,7 @@ pub fn app(pool: MySqlPool, locations: Locations) -> Router {
     };
 
     Router::new()
-        .route("/", get(landing))
+        .route("/landing", get(landing))
         .route("/health", get(check_health))
         .route("/login", get(login_page).post(login))
         .route("/signout", get(logout))

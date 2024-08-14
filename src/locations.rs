@@ -13,11 +13,11 @@ pub struct Location(pub String);
 
 // PERF: calls clone on every property
 #[derive(Clone)]
-pub struct Locations(Arc<Mutex<_Locations>>);
+pub struct Locations(pub Arc<Mutex<InnerLocs>>);
 
 impl Locations {
     pub fn new() -> Self {
-        Self(Arc::new(Mutex::new(_Locations::new())))
+        Self(Arc::new(Mutex::new(InnerLocs::new())))
     }
 
     pub async fn update_location(&self, mac: &MacAddr, curr_loc: Location) {
@@ -30,12 +30,12 @@ impl Locations {
 }
 
 #[derive(Default)]
-pub struct _Locations {
-    locations: HashMap<MacAddr, Option<Location>>,
+pub struct InnerLocs {
+    pub locations: HashMap<MacAddr, Option<Location>>,
     changed: HashSet<MacAddr>,
 }
 
-impl _Locations {
+impl InnerLocs {
     pub fn new() -> Self {
         Self::default()
     }
