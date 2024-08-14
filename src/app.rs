@@ -10,6 +10,7 @@ use crate::{
     health::check_health,
     landing::landing,
     location::location,
+    locations::Locations,
     login::{login, login_page},
     logout::logout,
     ping::ping,
@@ -22,11 +23,13 @@ use tower_http::trace::TraceLayer;
 pub struct AppState {
     pub pool: MySqlPool,
     pub services: Services,
+    pub locations: Locations,
 }
 
-pub fn app(pool: MySqlPool) -> Router {
+pub fn app(pool: MySqlPool, locations: Locations) -> Router {
     let state = AppState {
         pool,
+        locations,
         services: Services::new(),
     };
 

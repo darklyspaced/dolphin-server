@@ -25,7 +25,7 @@ async fn _ping(mac: MacAddr, services: Services) -> Result<impl IntoResponse> {
                 return Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop")));
             };
 
-            Ok((StatusCode::FOUND, loc))
+            Ok((StatusCode::FOUND, loc.0))
         }
         None => Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop"))),
     }

@@ -1,21 +1,19 @@
 use std::{collections::HashSet, net::IpAddr, sync::Arc, time::Duration};
 
-use crate::error::{LocationError, Result};
+use crate::{
+    error::{LocationError, Result},
+    locations::Location,
+};
 use dashmap::{mapref::one::Ref, DashMap};
 use mdns_sd::{ServiceDaemon, ServiceEvent};
 use tokio::{io::AsyncReadExt, net::TcpStream, time};
 use tracing::debug_span;
 
-#[derive(Debug, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub struct MacAddr(pub String);
 
 #[derive(Default, Debug, Clone)]
-pub struct Services(Arc<DashMap<MacAddr, Service>>);
-
-pub enum Event {
-    New { key: MacAddr, service: Service },
-    Remove(MacAddr),
-}
+pub struct Services(pub Arc<DashMap<MacAddr, Service>>);
 
 impl Services {
     pub fn new() -> Self {
@@ -47,13 +45,10 @@ impl Services {
 
                     let (addrs, port) = (info.get_addresses(), info.get_port());
                     let service = Service::from(addrs, port);
-                    let mac_addr = std::str::from_utf8(mac_addr)?.to_string();
+                    let mac_addr = MacAddr(std::str::from_utf8(mac_addr)?.to_string());
 
-                    tracing::info!("registered new laptop at {addrs:?}/{port} with {mac_addr}");
-
-                    dbg!(service.try_get_loc().await?);
-
-                    self.0.insert(MacAddr(mac_addr), service);
+                    tracing::info!("new service at {addrs:?}/{port} with {mac_addr:?}");
+                    self.add_service(mac_addr, service).await;
                 }
                 ServiceEvent::ServiceRemoved(ty, full) => {
                     // extract mac address from title of service
@@ -68,6 +63,10 @@ impl Services {
         }
 
         Ok(())
+    }
+
+    pub async fn add_service(&mut self, mac: MacAddr, service: Service) {
+        self.0.insert(mac, service);
     }
 
     /// Returns the addr and port of the mac with the specific mac addr
@@ -87,7 +86,7 @@ impl Services {
         }
 
         tracing::error!("failed to obtain lock on services map after 100ms");
-        Err(LocationError::LockFailed(mac).into())
+        Err(LocationError::LockFailed(mac.clone()).into())
     }
 }
 
@@ -105,13 +104,13 @@ impl Service {
 
     /// Fallible function that attempts to connect with the service and then get the location of
     /// the client
-    pub async fn try_get_loc(&self) -> Result<String> {
+    pub async fn try_get_loc(&self) -> Result<Location> {
         let mut stream =
             TcpStream::connect(format!("{}:{}", self.addr, &self.port.to_string())).await?;
 
         let mut loc = String::new();
         stream.read_to_string(&mut loc).await?;
 
-        Ok(loc)
+        Ok(Location(loc))
     }
 }

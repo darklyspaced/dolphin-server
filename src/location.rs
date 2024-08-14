@@ -1,7 +1,4 @@
-use std::fmt::write;
-
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
-use sqlx::{MySqlPool, Pool};
 use tracing::debug;
 
 use crate::{
