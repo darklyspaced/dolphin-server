@@ -16,8 +16,8 @@ pub struct Location(pub String);
 pub struct Locations(pub Arc<Mutex<InnerLocs>>);
 
 impl Locations {
-    pub fn new() -> Self {
-        Self(Arc::new(Mutex::new(InnerLocs::new())))
+    pub async fn new(pool: MySqlPool) -> Self {
+        Self(Arc::new(Mutex::new(InnerLocs::new(pool).await)))
     }
 
     pub async fn update_location(&self, mac: &MacAddr, curr_loc: Location) {
@@ -36,8 +36,33 @@ pub struct InnerLocs {
 }
 
 impl InnerLocs {
-    pub fn new() -> Self {
-        Self::default()
+    /// Populates with all known locations by default
+    pub async fn new(pool: MySqlPool) -> Self {
+        let mut locations = HashMap::new();
+        let locs = sqlx::query!(
+            "
+SELECT * FROM locations;
+            "
+        )
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+
+        for loc in locs {
+            locations.insert(
+                MacAddr(loc.mac),
+                if !loc.bssid.is_empty() {
+                    Some(Location(loc.bssid))
+                } else {
+                    None
+                },
+            );
+        }
+
+        Self {
+            locations,
+            ..Default::default()
+        }
     }
 
     /// Updates the location of a laptop if changed and marks it to be pushed to database
@@ -74,11 +99,5 @@ bssid = VALUES(bssid);
             .await
             .expect("failed to update location");
         }
-    }
-}
-
-impl Default for Locations {
-    fn default() -> Self {
-        Self::new()
     }
 }

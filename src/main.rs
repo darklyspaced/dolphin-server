@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
         .connect(&env::var("DATABASE_URL").expect(".env should have DATABASE_URL"))
         .await?;
     let mut services = Services::new();
-    let locations = Locations::new();
+    let locations = Locations::new(pool.clone()).await;
 
     // start the load balancer
     let balancer = LoadBalancer::new(services.clone(), pool.clone(), locations.clone());
