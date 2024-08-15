@@ -1,0 +1,13 @@
+<!-- templates/new_loc.html -->
+
+{% block content %}
+<td>{{trolley}}</td>
+<td>{{device_name}}</td>
+<td>{{mac}}</td>
+<td>{{bssid}}</td>
+<td>{{location}}</td>
+<td>
+    {# targets the location data and updates it with the newest information#}
+    <button hx-target="closest tr" hx-swap="innerHTML" hx-trigger="click" hx-get="ping/{{mac}}">Ping</button>
+</td>
+{% endblock %}

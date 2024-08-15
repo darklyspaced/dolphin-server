@@ -7,11 +7,13 @@ use crate::error::Result;
 #[derive(Template)]
 #[template(path = "landing.html")]
 struct LandingPage {
-    data: Vec<TableData>,
+    data: Vec<TableRow>,
 }
 
-#[derive(Default)]
-struct TableData {
+#[derive(Default, Template)]
+#[template(path = "row.html")]
+/// All the data required for one row of the dashboard
+pub struct TableRow {
     pub trolley: char,
     pub device_name: String,
     pub mac: String,
@@ -19,11 +21,18 @@ struct TableData {
     pub location: String,
 }
 
-impl TableData {
+impl TableRow {
     pub fn new(mac: String, bssid: String) -> Self {
         Self {
             mac,
             bssid,
+            ..Default::default()
+        }
+    }
+
+    pub fn error(error: &str) -> Self {
+        Self {
+            location: String::from(error),
             ..Default::default()
         }
     }
@@ -40,8 +49,8 @@ pub async fn landing(State(state): State<AppState>) -> Result<impl IntoResponse>
 
     for loc in guard.locations.iter() {
         match loc.1 {
-            Some(x) => data.push(TableData::new(loc.0 .0.clone(), x.0.clone())),
-            None => data.push(TableData::new(loc.0 .0.clone(), String::from(""))),
+            Some(x) => data.push(TableRow::new(loc.0 .0.clone(), x.0.clone())),
+            None => data.push(TableRow::new(loc.0 .0.clone(), String::from(""))),
         }
     }
 

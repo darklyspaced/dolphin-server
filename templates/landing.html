@@ -22,33 +22,38 @@ tr:nth-child(even) {
 }
 </style>
 
-<table>
-    <thead>
-        <tr>
-            <th>Trolley</th>
-            <th>Device Name</th>
-            <th>Mac</th>
-            <th>BSSID</th>
-            <th>Location</th>
-            <th>Ping</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for piece in data %}
+<div>
+    <table>
+        <colgroup>
+    <col span="3" class="irrelevant" />
+    <col span="2" class="flash" />
+    <col span="1" class="flash" />
+  </colgroup>
+        <thead>
+            <tr>
+                <th>Trolley</th>
+                <th>Device Name</th>
+                <th>Mac</th>
+                <th>BSSID</th>
+                <th>Location</th>
+                <th>Ping</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for piece in data %}
         <tr>
             <td>{{piece.trolley}}</td>
             <td>{{piece.device_name}}</td>
             <td>{{piece.mac}}</td>
-            <div>
-                <td>{{piece.bssid}}</td>
-                <td>{{piece.location}}</td>
-            </div>
+            <td>{{piece.bssid}}</td>
+            <td>{{piece.location}}</td>
             <td>
                 {# targets the location data and updates it with the newest information#}
-                <button hx-target="closest div" hx-swap="innerHTML" hx-trigger="click" hx-get="ping/{{piece.mac}}">Ping</button>
+                <button hx-target="closest tr" hx-swap="innerHTML" hx-trigger="click" hx-get="ping/{{piece.mac}}">Ping</button>
             </td>
         <tr/>
-    {% endfor %}
-    </tbody>
-</table>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
