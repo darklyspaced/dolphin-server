@@ -39,10 +39,13 @@ tr:nth-child(even) {
             <td>{{piece.trolley}}</td>
             <td>{{piece.device_name}}</td>
             <td>{{piece.mac}}</td>
-            <td>{{piece.bssid}}</td>
-            <td>{{piece.location}}</td>
+            <div>
+                <td>{{piece.bssid}}</td>
+                <td>{{piece.location}}</td>
+            </div>
             <td>
-                <button>Ping</button>
+                {# targets the location data and updates it with the newest information#}
+                <button hx-target="closest div" hx-swap="innerHTML" hx-trigger="click" hx-get="ping/{{piece.mac}}">Ping</button>
             </td>
         <tr/>
     {% endfor %}

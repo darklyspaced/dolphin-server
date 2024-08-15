@@ -1,7 +1,9 @@
+use askama_axum::Template;
 use axum::{
+    debug_handler,
     extract::{Path, State},
     http::StatusCode,
-    response::IntoResponse,
+    response::{Html, IntoResponse},
 };
 
 use crate::{
@@ -10,23 +12,65 @@ use crate::{
     service::{MacAddr, Services},
 };
 
+#[derive(Template, Default)]
+#[template(path = "new_loc.html")]
+struct NewLoc {
+    location: String,
+    bssid: String,
+}
+
+impl NewLoc {
+    pub fn new(location: &str, bssid: &str) -> Self {
+        Self {
+            location: String::from(location),
+            bssid: String::from(bssid),
+        }
+    }
+
+    pub fn error(error: &str) -> Html<String> {
+        Html(
+            Self {
+                location: String::from(error),
+                bssid: String::from(error),
+            }
+            .render()
+            .unwrap(),
+        )
+    }
+}
+
+#[debug_handler]
 pub async fn ping(
     State(state): State<AppState>,
     Path(mac): Path<String>,
-) -> Result<impl IntoResponse> {
-    _ping(MacAddr(mac), state.services).await
-}
+) -> Result<(StatusCode, Html<String>)> {
+    let mac = MacAddr(mac);
+    let result = state.services.get(mac).await?;
 
-async fn _ping(mac: MacAddr, services: Services) -> Result<impl IntoResponse> {
-    let result = services.get(mac).await?;
     match result {
         Some(service) => {
             let Ok(loc) = service.try_get_loc().await else {
-                return Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop")));
+                return Ok((
+                    StatusCode::NOT_FOUND,
+                    NewLoc::error(dbg!("failed to ping laptop")),
+                ));
             };
 
-            Ok((StatusCode::FOUND, loc.0))
+            Ok((
+                StatusCode::FOUND,
+                axum::response::Html(
+                    NewLoc {
+                        location: String::new(),
+                        bssid: loc.0,
+                    }
+                    .render()
+                    .unwrap(),
+                ),
+            ))
         }
-        None => Ok((StatusCode::NOT_FOUND, String::from("failed to ping laptop"))),
+        None => Ok((
+            StatusCode::NOT_FOUND,
+            NewLoc::error(dbg!("laptop doesn't advertise service anymore")),
+        )),
     }
 }
