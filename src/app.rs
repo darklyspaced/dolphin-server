@@ -7,6 +7,7 @@ use axum::{
 use sqlx::MySqlPool;
 
 use crate::{
+    config::config,
     health::check_health,
     landing::landing,
     location::location,
@@ -41,6 +42,7 @@ pub fn app(pool: MySqlPool, locations: Locations) -> Router {
         .route("/location", post(location))
         .route("/ping/:mac", get(ping))
         .route("/register/:mac", get(register))
+        .route("/config/:panel", get(config))
         .layer(
             TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
                 let matched_path = request

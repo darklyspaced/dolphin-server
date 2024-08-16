@@ -1,0 +1,37 @@
+<!-- templates/config.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<table>
+        <thead>
+            <tr>
+                <th>Trolley</th>
+                <th>Device Name</th>
+                <th>Mac</th>
+                <th>BSSID</th>
+                <th>Location</th>
+                <th>Ping</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for piece in data %}
+        <tr>
+            <td>{{piece.trolley}}</td>
+            <td>{{piece.device_name}}</td>
+            <td>{{piece.mac}}</td>
+            <td>{{piece.bssid}}</td>
+            <td>{{piece.location}}</td>
+            <td>
+                {# targets the location data and updates it with the newest information#}
+                <button hx-target="closest tr" hx-swap="innerHTML" hx-trigger="click" hx-get="ping/{{piece.mac}}">Ping</button>
+            </td>
+        <tr/>
+        {% endfor %}
+        </tbody>
+    </table>
+<form id="login">
+    <input placeholder="username" required type=text name="username">
+    <input placeholder="password" required type=password name="password">
+    <button hx-post="/login" hx-trigger="click">Login</button>
+</form>
+{% endblock %}

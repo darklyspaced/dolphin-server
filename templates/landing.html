@@ -2,33 +2,59 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Dashboard</h1>
 
 <style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    .settings {
+        display: none;
+    }
+
+    #check:checked ~ .settings {
+        display: block;
+    }
+
+    #hamburger {
+        width: 100px;
+        float: right;
+        top: 50%;
+        bottom: 50%;
+    }
 </style>
+
+
+<nav>
+    <h1 style="float:left;">Dashboard</h1>
+
+    <div id="hamburger" style="width:100px; float:right;">
+        <input type="checkbox" id="check">
+        <label for="check">
+            settings
+        </label>
+        <div class="settings">
+            <a href="account">Account</a>
+            <a href="config/ap">Access Points</a>
+            <a href="config/trolley">Trolleys</a>
+        </div>
+    </div>
+</nav>
 
 <div>
     <table>
-        <colgroup>
-    <col span="3" class="irrelevant" />
-    <col span="2" class="flash" />
-    <col span="1" class="flash" />
-  </colgroup>
         <thead>
             <tr>
                 <th>Trolley</th>

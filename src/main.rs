@@ -1,3 +1,4 @@
+#![recursion_limit = "100000"]
 use std::env;
 
 use dotenvy::dotenv;
