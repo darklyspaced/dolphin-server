@@ -3,32 +3,60 @@
 
 {% block content %}
 <table>
-        <thead>
-            {% for row in data %}
-                {% if loop.first %}
-                    <tr>
-                        {% for heading in row %}
-                            <th>{{ heading }}</th>
-                        {% endfor %}
-                    <tr/>
-                {% endif %}
-            {% endfor %}
-        </thead>
-        <tbody>
-            {% for row in data %}
-                {% if loop.index > 1 %}
-                    <tr>
-                        {% for val in row %}
-                            <td>{{ val }}</td>
-                        {% endfor %}
-                    <tr/>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-<form id="login">
-    <input placeholder="username" required type=text name="username">
-    <input placeholder="password" required type=password name="password">
-    <button hx-post="/login" hx-trigger="click">Login</button>
-</form>
+    <thead>
+        {% for row in data %}
+            {% if loop.first %}
+                <tr>
+                    {% for heading in row %}
+                        <th>{{ heading }}</th>
+                    {% endfor %}
+                <tr/>
+            {% endif %}
+        {% endfor %}
+    </thead>
+    <tbody>
+        {% for row in data %}
+            {% if loop.index > 1 %}
+                <tr>
+                    {% for val in row %}
+                        <td>{{ val }}</td>
+                    {% endfor %}
+                <tr/>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+
+    .settings {
+        display: none;
+    }
+
+    #check:checked ~ .settings {
+        display: block;
+    }
+
+    #hamburger {
+        width: 100px;
+        float: right;
+        top: 50%;
+        bottom: 50%;
+    }
+</style>
 {% endblock %}
