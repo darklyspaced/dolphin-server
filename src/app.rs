@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use axum::{
     extract::MatchedPath,
     http::Request,
@@ -8,6 +10,7 @@ use sqlx::MySqlPool;
 
 use crate::{
     config::config,
+    config_data::{Ap, Trolleys},
     health::check_health,
     landing::landing,
     location::location,
@@ -25,12 +28,16 @@ pub struct AppState {
     pub pool: MySqlPool,
     pub services: Services,
     pub locations: Locations,
+    pub ap: Ap,
+    pub trolleys: Trolleys,
 }
 
 pub fn app(pool: MySqlPool, locations: Locations) -> Router {
     let state = AppState {
         pool,
         locations,
+        ap: Ap::new(),
+        trolleys: Trolleys::new(),
         services: Services::new(),
     };
 
