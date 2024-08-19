@@ -1,3 +1,7 @@
+// have an admin page so that he can control visibility of things and make other accounts
+// where to locate database
+// user guide on installation of local devices
+// testing on staff laptops potentially
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use askama_axum::Template;
 use axum::{

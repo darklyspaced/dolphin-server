@@ -3,28 +3,29 @@
 
 {% block content %}
 <table>
-    <thead>
-        {% for row in data %}
-            {% if loop.first %}
+    {% for row in data %}
+        {% if loop.first %}
+            <thead>
                 <tr>
                     {% for heading in row %}
                         <th>{{ heading }}</th>
                     {% endfor %}
                 <tr/>
+            </thead>
+        {% else %}
+            {% if loop.index == 2 %}
+                <tbody>
             {% endif %}
-        {% endfor %}
-    </thead>
-    <tbody>
-        {% for row in data %}
-            {% if loop.index > 1 %}
-                <tr>
-                    {% for val in row %}
-                        <td>{{ val }}</td>
-                    {% endfor %}
-                <tr/>
+            <tr>
+                {% for val in row %}
+                    <td>{{ val }}</td>
+                {% endfor %}
+            <tr/>
+            {% if loop.last %}
+                </tbody>
             {% endif %}
-        {% endfor %}
-    </tbody>
+        {% endif %}
+    {% endfor %}
 </table>
 
 <style>

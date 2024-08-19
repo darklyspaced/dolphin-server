@@ -9,7 +9,7 @@ use mdns_sd::{ServiceDaemon, ServiceEvent};
 use tokio::{io::AsyncReadExt, net::TcpStream, time};
 use tracing::debug_span;
 
-#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct MacAddr(pub String);
 
 #[derive(Default, Debug, Clone)]
@@ -66,7 +66,8 @@ impl Services {
     }
 
     pub async fn add_service(&mut self, mac: MacAddr, service: Service) {
-        self.0.insert(mac, service);
+        self.0.insert(dbg!(mac.clone()), service);
+        dbg!(self.get(mac).await.unwrap());
     }
 
     /// Returns the addr and port of the mac with the specific mac addr

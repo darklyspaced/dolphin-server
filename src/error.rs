@@ -60,7 +60,7 @@ macro_rules! define {
         $(
             #[$err_msg]
             $variant $(
-                ( $($ty,)+ ) // without the brackets everything fucking burns
+                ( $($ty,)+ ) // need brackets for sanitation
             )? ,
         )+
         }

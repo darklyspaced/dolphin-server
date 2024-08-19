@@ -87,10 +87,11 @@ impl IntoIterator for Trolleys {
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
-        vec![self.headers]
+        vec![self.headers.clone()]
             .into_iter()
             .chain(
                 self.data
+                    .clone()
                     .into_iter()
                     .map(|(mac, (name, trolley))| [mac, name, trolley]),
             )
