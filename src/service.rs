@@ -25,6 +25,8 @@ impl Services {
     /// Infinitely running daemon that continuously adds services to it's internal
     /// list of services
     pub async fn browse_services(&mut self) -> Result<()> {
+        tracing::info!("started browsing for services");
+
         let mdns = ServiceDaemon::new()?;
         let service_type = "_dolphin._tcp.local.";
         let receiver = mdns.browse(service_type)?;

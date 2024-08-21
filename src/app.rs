@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::sync::Arc;
 
 use axum::{
     extract::MatchedPath,
@@ -32,13 +32,13 @@ pub struct AppState {
     pub trolleys: Trolleys,
 }
 
-pub fn app(pool: MySqlPool, locations: Locations) -> Router {
+pub fn app(pool: MySqlPool, locations: Locations, services: Services) -> Router {
     let state = AppState {
         pool,
         locations,
+        services,
         ap: Ap::new(),
         trolleys: Trolleys::new(),
-        services: Services::new(),
     };
 
     Router::new()

@@ -1,4 +1,3 @@
-#![recursion_limit = "100000"]
 use std::env;
 
 use dotenvy::dotenv;
@@ -31,14 +30,19 @@ async fn main() -> Result<()> {
     // start the load balancer
     let balancer = LoadBalancer::new(services.clone(), pool.clone(), locations.clone());
     balancer.run();
-
-    // start observing events
-    tokio::spawn(async move { services.browse_services().await });
+    //
+    // start observing services that are being created and deleted
+    //tokio::spawn(async move { services.clone().browse_services().await });
+    tokio::spawn(browse(services.clone()));
 
     // start the server
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await?;
     debug!("listening on {}", listener.local_addr()?);
-    axum::serve(listener, app(pool, locations)).await?;
+    axum::serve(listener, app(pool, locations, services.clone())).await?;
 
     Ok(())
+}
+
+async fn browse(mut services: Services) -> Result<()> {
+    services.browse_services().await
 }
