@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     let pool = MySqlPoolOptions::new()
         .connect(&env::var("DATABASE_URL").expect(".env should have DATABASE_URL"))
         .await?;
-    let mut services = Services::new();
+    let services = Services::new();
     let locations = Locations::new(pool.clone()).await;
 
     // start the load balancer
@@ -32,7 +32,6 @@ async fn main() -> Result<()> {
     balancer.run();
     //
     // start observing services that are being created and deleted
-    //tokio::spawn(async move { services.clone().browse_services().await });
     tokio::spawn(browse(services.clone()));
 
     // start the server

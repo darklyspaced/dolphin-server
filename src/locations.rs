@@ -69,11 +69,13 @@ SELECT * FROM locations;
     pub fn update_location(&mut self, mac: &MacAddr, curr_loc: Location) {
         if let Some(Some(loc)) = self.locations.get(mac) {
             if *loc == curr_loc {
-                // don't change location if it exists in set and is same as current
                 return;
             }
         }
 
+        tracing::info!("changed location");
+
+        // insert regardless of whether it exists or not
         self.locations.insert(mac.clone(), Some(curr_loc));
         self.changed.insert(mac.clone());
     }

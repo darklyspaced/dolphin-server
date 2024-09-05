@@ -10,7 +10,8 @@ pub struct Ap {
 #[derive(Debug, Clone, Default)]
 pub struct Trolleys {
     headers: [String; 3],
-    data: HashMap<String, (String, String)>,
+    /// <Mac, (Device Name, Trolley)>
+    pub data: HashMap<String, (String, String)>,
 }
 
 pub trait Config: IntoIterator {

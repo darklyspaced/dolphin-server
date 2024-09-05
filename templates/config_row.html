@@ -1,0 +1,12 @@
+{% block content %}
+<tr>
+    {% for val in vals %}
+        <td>
+            {{ val }}
+        </td>
+    {% endfor %}
+    <td>
+        <button hx-get="row/edit/{{ panel }}/{{ key }}" hx-target="closest tr">edit</button>
+    </td>
+</tr>
+{% endblock %}

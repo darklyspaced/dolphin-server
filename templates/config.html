@@ -20,6 +20,14 @@
                 {% for val in row %}
                     <td>{{ val }}</td>
                 {% endfor %}
+
+                {% for val in row %}
+                    {% if loop.first %}
+                        <td>
+                            <button hx-get="row/edit/{{ panel }}/{{ val }}" hx-target="closest tr">edit</button>
+                        </td>
+                    {% endif %}
+                {% endfor %}
             <tr/>
             {% if loop.last %}
                 </tbody>

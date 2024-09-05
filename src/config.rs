@@ -11,14 +11,18 @@ use axum::{
 };
 
 #[derive(Template)]
-#[template(path = "config.html", print = "code")]
+#[template(path = "config.html")]
 struct TrolleysPage {
+    panel: String,
+    /// The 0th element has the heading metadata
     data: Vec<[String; 3]>,
 }
 
 #[derive(Template)]
-#[template(path = "config.html", print = "code")]
+#[template(path = "config.html")]
 struct ApPage {
+    panel: String,
+    /// The 0th element has the heading metadata
     data: Vec<[String; 2]>,
 }
 
@@ -37,6 +41,7 @@ pub async fn config(
             Ok(Html(
                 ApPage {
                     data: state.ap.into_iter().collect::<Vec<_>>(),
+                    panel: String::from("ap"),
                 }
                 .render()
                 .unwrap(),
@@ -48,6 +53,7 @@ pub async fn config(
             Ok(Html(
                 TrolleysPage {
                     data: state.trolleys.into_iter().collect::<Vec<_>>(),
+                    panel: String::from("trolley"),
                 }
                 .render()
                 .unwrap(),

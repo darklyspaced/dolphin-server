@@ -3,6 +3,8 @@
 pub mod app;
 pub mod config;
 pub mod config_data;
+pub mod edit_row;
+pub mod editable_row;
 pub mod error;
 pub mod health;
 pub mod landing;
@@ -13,4 +15,5 @@ pub mod login;
 pub mod logout;
 pub mod ping;
 pub mod register;
+pub mod row;
 pub mod service;

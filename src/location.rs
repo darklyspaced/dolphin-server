@@ -4,6 +4,8 @@ use tracing::debug;
 use crate::{
     app::AppState,
     error::{LocationError, Result},
+    locations::Location,
+    service::MacAddr,
 };
 
 pub async fn location(State(state): State<AppState>, body: String) -> Result<impl IntoResponse> {
@@ -13,6 +15,13 @@ pub async fn location(State(state): State<AppState>, body: String) -> Result<imp
     match (lines.next(), lines.next()) {
         (Some(mac), Some(bssid)) => {
             debug!("recieved that {} is connected to {}", mac, bssid);
+            state
+                .locations
+                .clone()
+                .0
+                .lock()
+                .await
+                .update_location(&MacAddr(mac.to_string()), Location(bssid.to_string()));
 
             sqlx::query!(
                 "
@@ -25,7 +34,8 @@ bssid = VALUES(bssid);
                 bssid
             )
             .execute(&pool)
-            .await?;
+            .await
+            .unwrap();
 
             Ok(StatusCode::CREATED)
         }

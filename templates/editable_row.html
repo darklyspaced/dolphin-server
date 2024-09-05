@@ -1,0 +1,15 @@
+{% block content %}
+<tr>
+    <form>
+    {% for val in vals %}
+        <td>
+            <input type="text" value="{{ val }}"></input>
+        </td>
+    {% endfor %}
+    </form>
+    <td>
+        <button hx-put="/row/{{ key }}" hx-trigger="click" hx-include="closest tr">Save</button>
+        <button hx-get="/row/{{ key }}">Cancel</button>
+    </td>
+</tr>
+{% endblock %}
