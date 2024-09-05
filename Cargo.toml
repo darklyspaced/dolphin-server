@@ -12,12 +12,13 @@ anyhow = "1.0.83"
 argon2 = { version = "0.5.3", features = ["std"] }
 askama = { version = "0.12.1", features = ["with-axum"] }
 askama_axum = "0.4.0"
-axum = { version = "0.7.5", features = ["macros"] }
+axum = { version = "0.7.5", features = ["macros", "multipart"] }
 dashmap = "5.5.3"
 dotenvy = "0.15.7"
 dotenvy_macro = "0.15.7"
 mdns-sd = "0.11.1"
 serde = { version = "1.0.201", features = ["derive"] }
+serde_urlencoded = "0.7.1"
 sqlx = {version = "0.7.4", features = [ "runtime-tokio", "tls-native-tls", "mysql", "time" ]}
 thiserror = "1.0.61"
 tokio = { version = "1.37.0", features = ["full"] }

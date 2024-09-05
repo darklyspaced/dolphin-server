@@ -1,15 +1,18 @@
 {% block content %}
 <tr>
     <form>
-    {% for val in vals %}
         <td>
-            <input type="text" value="{{ val }}"></input>
+            <input type="text" value="{{ key }}" name="mac"></input>
         </td>
-    {% endfor %}
+        {% for (val, name) in row %}
+            <td>
+                <input type="text" value="{{ val }}" name="{{ name }}"></input>
+            </td>
+        {% endfor %}
     </form>
     <td>
-        <button hx-put="/row/{{ key }}" hx-trigger="click" hx-include="closest tr">Save</button>
-        <button hx-get="/row/{{ key }}">Cancel</button>
+        <button hx-put="/row/{{ panel }}/{{ key }}" hx-include="closest tr" hx-target="closest tr" hx-swap="outerHTML">Save</button>
+        <button hx-get="/row/{{ panel }}/{{ key }}" hx-target="closest tr" hx-swap="outerHTML">Cancel</button>
     </td>
 </tr>
 {% endblock %}

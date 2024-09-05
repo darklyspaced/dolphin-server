@@ -100,8 +100,10 @@ define! {
     }
 
     pub enum ConfigError {
-        #[error("there is no config for this path")]
+        #[error("there is no row/config for this path")]
         InvalidPanel,
+        #[error("there is no data entry for {0}")]
+        InvalidKey(String),
     }
 }
 
@@ -136,8 +138,12 @@ impl IntoResponse for DolphinError {
             },
             Self::ConfigError(err) => match err {
                 ConfigError::InvalidPanel => {
-                    error!("{}", err);
+                    error!("{}", &err);
                     (StatusCode::NOT_FOUND, "invalid config path, try again").into_response()
+                }
+                ConfigError::InvalidKey(ref key) => {
+                    error!("{}", &err);
+                    (StatusCode::NOT_FOUND, format!("found no entry for {}", key)).into_response()
                 }
             },
             Self::Generic(err) => {

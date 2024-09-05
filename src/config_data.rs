@@ -5,7 +5,7 @@ use sqlx::MySqlPool;
 #[derive(Debug, Clone, Default)]
 pub struct Ap {
     headers: [String; 2],
-    data: HashMap<String, String>,
+    pub data: HashMap<String, String>,
 }
 #[derive(Debug, Clone, Default)]
 pub struct Trolleys {
@@ -17,6 +17,7 @@ pub struct Trolleys {
 pub trait Config: IntoIterator {
     /// Fetches the data from the database
     async fn get_latest_data(&mut self, pool: MySqlPool);
+    async fn push_updates(&mut self, pool: MySqlPool);
 }
 
 impl Config for Ap {
@@ -33,6 +34,21 @@ SELECT * FROM access_points;
         self.data.clear();
         for x in mappings {
             self.data.insert(x.bssid, x.room_name);
+        }
+    }
+
+    async fn push_updates(&mut self, pool: MySqlPool) {
+        for (key, ap) in self.data.iter() {
+            let mappings = sqlx::query!(
+                "
+UPDATE access_points
+SET bssid = ?, room_name = ?;
+                ",
+                key,
+                ap
+            )
+            .execute(&pool)
+            .await;
         }
     }
 }
@@ -57,6 +73,29 @@ SELECT * FROM laptops;
                     x.trolley.unwrap_or(String::new()),
                 ),
             );
+        }
+    }
+
+    // TODO: make it update everytime the hashmap is changed for individual values instead of all
+    // at once
+    async fn push_updates(&mut self, pool: MySqlPool) {
+        sqlx::query!("DELETE FROM laptops")
+            .execute(&pool)
+            .await
+            .unwrap();
+        for (key, (device_name, trolley)) in self.data.iter() {
+            sqlx::query!(
+                "
+INSERT INTO laptops (mac, device_name, trolley)
+VALUES (?, ?, ?);
+                ",
+                key,
+                device_name,
+                trolley
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
         }
     }
 }

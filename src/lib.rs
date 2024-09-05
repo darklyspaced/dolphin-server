@@ -17,3 +17,4 @@ pub mod ping;
 pub mod register;
 pub mod row;
 pub mod service;
+pub mod upload;

@@ -9,7 +9,8 @@ use sqlx::MySqlPool;
 use crate::{
     config::config,
     config_data::{Ap, Trolleys},
-    editable_row::{self, editable_row},
+    edit_row::edit_row,
+    editable_row::editable_row,
     health::check_health,
     landing::landing,
     location::location,
@@ -20,6 +21,7 @@ use crate::{
     register::register,
     row::row,
     service::Services,
+    upload::upload,
 };
 use tower_http::trace::TraceLayer;
 
@@ -32,13 +34,19 @@ pub struct AppState {
     pub trolleys: Trolleys,
 }
 
-pub fn app(pool: MySqlPool, locations: Locations, services: Services) -> Router {
+pub fn app(
+    pool: MySqlPool,
+    locations: Locations,
+    services: Services,
+    trolleys: Trolleys,
+    ap: Ap,
+) -> Router {
     let state = AppState {
         pool,
         locations,
         services,
-        ap: Ap::new(),
-        trolleys: Trolleys::new(),
+        ap,
+        trolleys,
     };
 
     Router::new()
@@ -47,11 +55,12 @@ pub fn app(pool: MySqlPool, locations: Locations, services: Services) -> Router 
         .route("/login", get(login_page).post(login))
         .route("/signout", get(logout))
         .route("/location", post(location))
+        .route("/upload", post(upload))
         .route("/ping/:mac", get(ping))
         .route("/register/:mac", get(register))
         .route("/config/:panel", get(config))
         .route("/row/:panel/:mac", get(row).put(edit_row)) // add a put() to edit the row
-        .route("/row/edit/:panel/:mac", get(editable_row))
+        .route("/config/row/edit/:panel/:mac", get(editable_row))
         .layer(
             TraceLayer::new_for_http().make_span_with(|request: &Request<_>| {
                 let matched_path = request

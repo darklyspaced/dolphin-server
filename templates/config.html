@@ -2,6 +2,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+<form hx-encoding="multipart/form-data" hx-post="/upload">
+    <input type='file' name='file'>
+    <button>
+        Upload
+    </button>
+</form>
 <table>
     {% for row in data %}
         {% if loop.first %}
@@ -24,7 +30,7 @@
                 {% for val in row %}
                     {% if loop.first %}
                         <td>
-                            <button hx-get="row/edit/{{ panel }}/{{ val }}" hx-target="closest tr">edit</button>
+                            <button hx-get="row/edit/{{ panel }}/{{ val }}" hx-target="closest tr" hx-swap="outerHTML">edit</button>
                         </td>
                     {% endif %}
                 {% endfor %}
